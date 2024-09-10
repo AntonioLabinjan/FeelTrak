@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion and Song Recommendation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #song-info {
+            margin-top: 20px;
+        }
+        #face-capture {
+            margin-top: 20px;
+        }
+        #video {
+            width: 40%;  /* Adjust this value to make the video window smaller */
+            height: auto;
+            border: 1px solid #ccc;
+        }
+        #capture-button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Emotion and Song Recommendation</h1>
+    
+    <!-- Face capture section -->
+    <div id="face-capture">
+        <h2>Capture Your Face Emotion</h2>
+        <video id="video" autoplay></video>
+        <br>
+        <button id="capture-button">Capture Image</button>
+    </div>
+    
+    <!-- Display results -->
+    <div id="song-info">
+        <h2>Emotion and Recommended Song:</h2>
+        <p id="emotion"></p>
+        <p id="song-name"></p>
+        <p id="song-artist"></p>
+        <p id="song-album"></p>
+        <p id="song-release-date"></p>
+    </div>
+    
+    <script>
+        // Function to initialize the webcam
+        async function initCamera() {
+            const video = document.getElementById('video');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.play();
+        }
+
+        // Function to capture an image from the webcam
+        document.getElementById('capture-button').addEventListener('click', async () => {
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+            const response = await fetch('/analyze_frame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: `data:image/jpeg;base64,${base64Image}` }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.getElementById('emotion').textContent = `Emotion: ${data.emotion}`;
+                
+                if (data.recommended_song === 'No songs found for this mood.') {
+                    document.getElementById('song-name').textContent = data.recommended_song;
+                    document.getElementById('song-artist').textContent = '';
+                    document.getElementById('song-album').textContent = '';
+                    document.getElementById('song-release-date').textContent = '';
+                } else {
+                    document.getElementById('song-name').textContent = `Song: ${data.recommended_song.name}`;
+                    document.getElementById('song-artist').textContent = `Artist: ${data.recommended_song.artist}`;
+                    document.getElementById('song-album').textContent = `Album: ${data.recommended_song.album}`;
+                    document.getElementById('song-release-date').textContent = `Release Date: ${data.recommended_song.release_date}`;
+                }
+            } else {
+                document.getElementById('emotion').textContent = `Error: ${data.error}`;
+                document.getElementById('song-name').textContent = '';
+                document.getElementById('song-artist').textContent = '';
+                document.getElementById('song-album').textContent = '';
+                document.getElementById('song-release-date').textContent = '';
+            }
+        });
+
+        // Initialize the camera when the page loads
+        window.onload = initCamera;
+    </script>
+</body>
+</html>
