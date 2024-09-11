@@ -8,3 +8,5 @@
 *Još malo ojačat dizajn; neki mood-based interactive interface
 
 *Track emotions over time i kako se mijenjaju
+
+*Napravit da mi kao app administratori moremo dodat nove pjesme
