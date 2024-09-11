@@ -6,3 +6,5 @@
 *Napravit mood based playliste od preporučene muzike
 
 *Još malo ojačat dizajn; neki mood-based interactive interface
+
+*Track emotions over time i kako se mijenjaju
