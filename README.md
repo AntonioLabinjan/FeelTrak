@@ -4,3 +4,5 @@
 *Omogućit da se sve ča ai napravi sprema u bazu
 
 *Napravit mood based playliste od preporučene muzike
+
+*Još malo ojačat dizajn; neki mood-based interactive interface
