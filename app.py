@@ -10,6 +10,7 @@ import requests
 import traceback
 import datetime
 from datetime import datetime
+from sqlalchemy.sql import func
 
 app = Flask(__name__)
 
@@ -44,6 +45,7 @@ def load_csv_data():
     db.session.commit()
 
 # YouTube Data API Key (replace with your actual key)
+# PROBLEM: ISTEKA NAN JE API xD
 YOUTUBE_API_KEY = 'AIzaSyB-XtO_O3GRPSvjeZgRtqO9nwgJaMxG6fs'
 YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
 
@@ -59,16 +61,16 @@ def get_youtube_link(song_name, artist):
     }
     
     response = requests.get(YOUTUBE_SEARCH_URL, params=params)
-    print(f"Requesting YouTube search for: {search_query}")
-    print(f"API response: {response.status_code}")
+    #print(f"Requesting YouTube search for: {search_query}")
+    #print(f"API response: {response.status_code}")
     
     if response.status_code == 200:
         results = response.json().get('items')
-        print(f"Results from YouTube API: {results}")
+        #print(f"Results from YouTube API: {results}")
         if results:
             video_id = results[0]['id']['videoId']
             youtube_link = f"https://www.youtube.com/watch?v={video_id}"  # Updated link format
-            print(f"Found YouTube link: {youtube_link}")
+            #print(f"Found YouTube link: {youtube_link}")
             return youtube_link
         else:
             print("No results found on YouTube.")
@@ -173,6 +175,37 @@ def recommendation_history():
         # Log the error details to the console
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+# Route for mood playlists
+@app.route('/mood_playlists')
+def mood_playlists():
+    # Get all distinct moods from the Song table
+    distinct_moods = Song.query.with_entities(Song.mood).distinct().all()
+    
+    mood_playlists = {}
+    
+    # For each mood, fetch 10 random songs
+    for mood_tuple in distinct_moods:
+        mood = mood_tuple[0]  # Extract the mood from the tuple
+        songs = Song.query.filter_by(mood=mood).order_by(func.random()).limit(10).all()
+        
+        # Prepare song data without YouTube links
+        song_data = []
+        for song in songs:
+            song_data.append({
+                'name': song.name,
+                'artist': song.artist,
+                'album': song.album,
+                'release_date': song.release_date
+            })
+        
+        # Add songs to the mood playlist
+        mood_playlists[mood] = song_data
+
+    return render_template('mood_playlists.html', mood_playlists=mood_playlists)
+
+
+
 
 
 if __name__ == '__main__':
