@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 from deepface import DeepFace
 import cv2
 import numpy as np
@@ -11,13 +11,31 @@ import traceback
 import datetime
 from datetime import datetime
 from sqlalchemy.sql import func
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
 
 app = Flask(__name__)
 
 # Database Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///songs.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'secret_369'
 db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+# Define the User model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 # Define the Song model
 class Song(db.Model):
@@ -34,6 +52,16 @@ class RecommendationHistory(db.Model):
     recommended_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     song = db.relationship('Song', backref=db.backref('recommendations', lazy=True))
+
+# Initialize Flask-Login UserMixin
+class UserSession(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
+
+# User loader function
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Function to load CSV data into the database
 def load_csv_data():
@@ -205,6 +233,61 @@ def mood_playlists():
     return render_template('mood_playlists.html', mood_playlists=mood_playlists)
 
 
+
+# Admin login route
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            login_user(UserSession(user.id))
+            return redirect('/admin')
+
+        return 'Invalid username or password.'
+
+    return render_template('admin_login.html')
+
+# Admin interface route to add new songs
+@app.route('/admin', methods=['GET', 'POST'])
+@login_required
+def admin():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        artist = request.form.get('artist')
+        album = request.form.get('album')
+        release_date = request.form.get('release_date')
+        mood = request.form.get('mood')
+
+        # Create a new song record
+        song = Song(name=name, artist=artist, album=album,
+                    release_date=release_date, mood=mood.lower().strip())
+        db.session.add(song)
+        db.session.commit()
+
+        return 'Song added successfully!'
+
+    return render_template('admin.html')
+
+# Admin logout route
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/admin_login')
+
+# CLI command to create an admin user
+@app.cli.command('create_admin')
+def create_admin():
+    username = input('Enter admin username: ')
+    password = input('Enter admin password: ')
+    hashed_password = generate_password_hash(password)
+    admin = User(username=username, password_hash=hashed_password)
+    db.session.add(admin)
+    db.session.commit()
+    print('Admin user created.')
 
 
 
