@@ -9,4 +9,6 @@
 
 *Napravit da mi kao app administratori moremo dodat nove pjesme 
 
+*Napravit da korisnik pri 1. pokretanju aplikacije dobije neki survey di će specificirat koje žanrove sluša u kojoj emociji i sl. Pa na temelju tega isto prilagodit preporuke
+
 * POPRAVIT OVAJ ADMIN STUFF JER NE VALJA JOŠ
