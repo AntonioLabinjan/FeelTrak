@@ -120,7 +120,7 @@
             transform: scale(1.05);
         }
 
-        #history-button, #playlist-button {
+        #history-button, #playlist-button, #survey-button {
             margin-top: 20px;
             padding: 12px 20px;
             font-size: 16px;
@@ -151,6 +151,16 @@
             background-color: #7CB342;
             transform: scale(1.05);
         }
+
+        #survey-button{
+            background-color: aqua;
+        }
+
+        #survey-button:hover {
+            background-color: aqua;
+            transform: scale(1.05);
+        }
+
     </style>    
 </head>
 <body>
@@ -178,6 +188,7 @@
     <!-- History and Playlist Buttons -->
     <button id="history-button" onclick="window.location.href='/recommendation_history';">View Recommendation History</button>
     <button id="playlist-button" onclick="window.location.href='/mood_playlists';">View Mood Playlists</button>
+    <button id="survey-button" onclick="window.location.href='/survey';">Take a personalization survey</button>
     
     <script>
         async function initCamera() {
