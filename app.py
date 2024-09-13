@@ -23,6 +23,11 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+from flask_migrate import Migrate
+
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)
+
 # Define the User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,6 +49,12 @@ class RecommendationHistory(db.Model):
     recommended_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     song = db.relationship('Song', backref=db.backref('recommendations', lazy=True))
+
+# Define the Survey model to store user preferences
+class Response(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mood = db.Column(db.String(50), nullable=False)
+    preferred_mood_songs = db.Column(db.String(200), nullable=False)
 
 # Initialize Flask-Login UserMixin
 class UserSession(UserMixin):
@@ -99,28 +110,41 @@ def get_youtube_link(song_name, artist):
 def index():
     return render_template('index.html')
 
+
 def recommend_song(mood):
     print(f"Received mood for recommendation: {mood}")
     mood = mood.lower()
-    filtered_songs = Song.query.filter(Song.mood == mood).all()
+
+    # Fetch the survey response for the given mood
+    user_survey = Response.query.filter_by(mood=mood).first()
+
+    if user_survey:
+        # Use the preferred mood songs from the survey response
+        preferred_mood_songs = user_survey.preferred_mood_songs
+        filtered_songs = Song.query.filter(Song.mood == preferred_mood_songs).all()
+    else:
+        # Default to songs of the same mood if no survey response exists
+        filtered_songs = Song.query.filter(Song.mood == mood).all()
+
     print(f"Filtered songs based on mood: {filtered_songs}")
 
     if not filtered_songs:
         return 'No songs found for this mood.'
-    
+
+    # Randomly select a song
     song = random.choice(filtered_songs)
-    
-    # Get the YouTube link
+
+    # Get the YouTube link for the song
     youtube_link = get_youtube_link(song.name, song.artist)
-    
-    # Save the recommendation to history
+
+    # Save the recommendation to history (global history for all users)
     recommendation = RecommendationHistory(
         song_id=song.id,
         recommended_at=datetime.now()
     )
     db.session.add(recommendation)
     db.session.commit()
-    
+
     return {
         'name': song.name,
         'artist': song.artist,
@@ -128,6 +152,7 @@ def recommend_song(mood):
         'release_date': song.release_date,
         'youtube_link': youtube_link
     }
+
 
 # Route to analyze frame sent from the frontend
 @app.route('/analyze_frame', methods=['POST'])
@@ -220,7 +245,7 @@ def admin_login():
         password = request.form.get('password')
 
         if username == 'admin' and password == 'adminadmin1234':
-            #login_user(UserSession(1))  # Assuming '1' as admin user id
+            # login_user(UserSession(1))  # Assuming '1' as admin user id
             return redirect('/admin')
 
         return 'Invalid username or password.'
@@ -228,7 +253,7 @@ def admin_login():
     return render_template('admin_login.html')
 
 @app.route('/admin', methods=['GET', 'POST'])
-#@login_required
+# @login_required
 def admin():
     if request.method == 'POST':
         name = request.form.get('name')
@@ -254,7 +279,6 @@ def logout():
     logout_user()
     return redirect('/admin_login')
 
-
 # CLI command to create an admin user (Optional for future use)
 @app.cli.command('create_admin')
 def create_admin():
@@ -265,6 +289,34 @@ def create_admin():
     db.session.add(admin)
     db.session.commit()
     print('Admin user created.')
+
+@app.route('/survey', methods=['GET', 'POST'])
+def survey():
+    if request.method == 'POST':
+        happy_preference = request.form.get('happy_preference')
+        sad_preference = request.form.get('sad_preference')
+
+        # Update or create survey responses
+        happy_survey = Response.query.filter_by(mood='happy').first()
+        if happy_survey:
+            happy_survey.preferred_mood_songs = happy_preference
+        else:
+            happy_survey = Response(mood='happy', preferred_mood_songs=happy_preference)
+            db.session.add(happy_survey)
+
+        sad_survey = Response.query.filter_by(mood='sad').first()
+        if sad_survey:
+            sad_survey.preferred_mood_songs = sad_preference
+        else:
+            sad_survey = Response(mood='sad', preferred_mood_songs=sad_preference)
+            db.session.add(sad_survey)
+
+        db.session.commit()
+
+        return redirect('/')
+
+    return render_template('survey.html')
+
 
 if __name__ == '__main__':
     with app.app_context():
