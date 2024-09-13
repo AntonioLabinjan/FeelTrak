@@ -7,6 +7,6 @@
 
 *Track emotions over time i kako se mijenjaju
 
-*Napravit da korisnik pri 1. pokretanju aplikacije dobije neki survey di će specificirat koje žanrove sluša u kojoj emociji i sl. Pa na temelju tega isto prilagodit preporuke
+*Napravit da korisnik pri 1. pokretanju aplikacije dobije neki survey di će specificirat koje žanrove sluša u kojoj emociji i sl. Pa na temelju tega isto prilagodit preporuke (RIJEŠENO)
 
 * Izmislit način da se muzika legit more slušat
