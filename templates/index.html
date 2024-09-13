@@ -78,12 +78,49 @@
             }
         }
     
-        #song-info p {
-            opacity: 0;
-            animation: fadeIn 2s forwards;
+        #song-card {
+            display: none;
+            background-color: #2c3e50;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            width: 60%; /* Adjust width */
+            max-width: 600px; /* Max width */
+            margin-left: auto;
+            margin-right: auto; /* Center the card */
+            transition: opacity 0.3s;
         }
         
-        #youtube-link, #open-youtube, #history-button, #playlist-button {
+        #song-card.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        #song-card p {
+            font-size: 18px;
+            color: #ecf0f1;
+            margin: 8px 0;
+        }
+        
+        #song-card #youtube-link {
+            display: block;
+            margin-top: 15px;
+            padding: 12px 20px;
+            font-size: 16px;
+            color: white;
+            text-decoration: none;
+            background-color: #4CAF50;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        #song-card #youtube-link:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        #history-button, #playlist-button {
             margin-top: 20px;
             padding: 12px 20px;
             font-size: 16px;
@@ -91,30 +128,12 @@
             border: none;
             cursor: pointer;
             text-align: center;
-            display: block; /* Always visible */
+            display: block;
             border-radius: 8px;
             transition: background-color 0.3s, transform 0.2s;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        
-        #youtube-link {
-            background-color: #4CAF50;
-        }
-        
-        #youtube-link:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
-        }
-        
-        #open-youtube {
-            background-color: #2196F3;
-        }
-        
-        #open-youtube:hover {
-            background-color: #1e88e5;
-            transform: scale(1.05);
-        }
-        
+
         #history-button {
             background-color: #FFC107;
         }
@@ -145,15 +164,15 @@
         <button id="capture-button">Emotion analysis</button>
     </div>
     
-    <!-- Display results -->
-    <div id="song-info">
-        <h2>Emotion and Recommended Song:</h2>
+    <!-- Display recommended song as a card -->
+    <div id="song-card">
+        <h2>Recommended Song</h2>
         <p id="emotion"></p>
         <p id="song-name"></p>
         <p id="song-artist"></p>
         <p id="song-album"></p>
         <p id="song-release-date"></p>
-       <!--  <a id="youtube-link" href="" target="_blank">Watch on YouTube</a> -->
+        <a id="youtube-link" href="" target="_blank">Watch on YouTube</a>
     </div>
     
     <!-- History and Playlist Buttons -->
@@ -189,6 +208,9 @@
             const data = await response.json();
             
             if (response.ok) {
+                const songCard = document.getElementById('song-card');
+                songCard.classList.add('show');
+                
                 document.getElementById('emotion').textContent = `Emotion: ${data.emotion}`;
                 
                 if (data.recommended_song === 'No songs found for this mood.') {
@@ -201,7 +223,6 @@
                     document.getElementById('song-release-date').textContent = `Release Date: ${data.recommended_song.release_date}`;
                     
                     const youtubeLink = data.recommended_song.youtube_link;
-                    
                     document.getElementById('youtube-link').href = youtubeLink;
                     document.getElementById('youtube-link').style.display = 'block';
                 }
