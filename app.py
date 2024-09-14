@@ -72,6 +72,12 @@ class PlaylistSong(db.Model):
     song = db.relationship('Song')
 
 
+class EmotionLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    emotion = db.Column(db.String(50), nullable=False)
+    logged_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
 # Initialize Flask-Login UserMixin
 class UserSession(UserMixin):
     def __init__(self, user_id):
@@ -191,6 +197,11 @@ def analyze_frame():
             analysis = analysis[0]
         
         dominant_emotion = analysis['dominant_emotion']
+        
+        # Log the emotion data
+        emotion_log = EmotionLog(emotion=dominant_emotion)
+        db.session.add(emotion_log)
+        db.session.commit()
         
         # Get a recommended song based on the detected emotion
         recommended_song = recommend_song(dominant_emotion)
@@ -332,6 +343,34 @@ def survey():
         return redirect('/')
 
     return render_template('survey.html')
+
+
+import plotly.graph_objects as go
+
+@app.route('/emotion_chart')
+def emotion_chart():
+    try:
+        # Fetch emotion data from the database
+        emotion_logs = EmotionLog.query.order_by(EmotionLog.logged_at).all()
+        emotions = [log.emotion for log in emotion_logs]
+        timestamps = [log.logged_at.strftime('%Y-%m-%d %H:%M:%S') for log in emotion_logs]
+        
+        # Create a Plotly graph
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=timestamps, y=emotions, mode='lines+markers', name='Emotion'))
+        
+        fig.update_layout(
+                          xaxis_title='Time',
+                          yaxis_title='Emotion')
+        
+        # Save the plot as HTML
+        graph_html = fig.to_html(full_html=False)
+        
+        return render_template('emotion_chart.html', graph_html=graph_html)
+    
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 
 
