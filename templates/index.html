@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emotion and Song Recommendation</title>
     <style>
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #1d1f21;
             color: #f0f0f0;
             margin: 0;
             padding: 20px;
+            transition: background-color 0.5s ease; /* Smooth background color transition */
         }
         
         h1, h2 {
@@ -191,6 +193,13 @@
     <button id="survey-button" onclick="window.location.href='/survey';">Take a personalization survey</button>
     
     <script>
+        // Define colors for different emotions
+        const moodColors = {
+            happy: "#FFD700",  // Gold color for happy
+            sad: "#2F4F4F",    // Dark slate gray for sad
+            neutral: "#1d1f21" // Default neutral color
+        };
+
         async function initCamera() {
             const video = document.getElementById('video');
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -223,6 +232,15 @@
                 songCard.classList.add('show');
                 
                 document.getElementById('emotion').textContent = `Emotion: ${data.emotion}`;
+                
+                // Change background color based on emotion
+                if (data.emotion === 'happy') {
+                    document.body.style.backgroundColor = moodColors.happy;
+                } else if (data.emotion === 'sad') {
+                    document.body.style.backgroundColor = moodColors.sad;
+                } else {
+                    document.body.style.backgroundColor = moodColors.neutral;
+                }
                 
                 if (data.recommended_song === 'No songs found for this mood.') {
                     document.getElementById('song-name').textContent = data.recommended_song;
