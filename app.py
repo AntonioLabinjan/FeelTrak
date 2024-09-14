@@ -56,6 +56,22 @@ class Response(db.Model):
     mood = db.Column(db.String(50), nullable=False)
     preferred_mood_songs = db.Column(db.String(200), nullable=False)
 
+class ShareablePlaylist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    song_id = db.Column(db.Integer, db.ForeignKey('song.id'), nullable=False)
+    shareable_link = db.Column(db.String(200), unique=True, nullable=False)
+
+    song = db.relationship('Song', backref=db.backref('playlist_songs', lazy=True))
+
+class PlaylistSong(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    playlist_id = db.Column(db.Integer, db.ForeignKey('shareable_playlist.id'), nullable=False)
+    song_id = db.Column(db.Integer, db.ForeignKey('song.id'), nullable=False)
+
+    playlist = db.relationship('ShareablePlaylist', backref=db.backref('songs', lazy=True))
+    song = db.relationship('Song')
+
+
 # Initialize Flask-Login UserMixin
 class UserSession(UserMixin):
     def __init__(self, user_id):
@@ -318,9 +334,10 @@ def survey():
     return render_template('survey.html')
 
 
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # This will create the tables in the database
         if Song.query.count() == 0:  # Only load data if the table is empty
             load_csv_data()
-    app.run(port=4000, debug=True)
+    app.run(host = '0.0.0.0', port=4000, debug=True)
