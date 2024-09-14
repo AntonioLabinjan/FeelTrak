@@ -37,6 +37,14 @@
         tr:hover {
             background-color: #2c2c2c;
         }
+
+        .add-to-playlist-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +67,7 @@
                 <td>{{ song.album }}</td>
                 <td>{{ song.release_date }}</td>
                 <td>{{ song.recommended_at }}</td>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
