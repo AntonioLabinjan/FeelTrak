@@ -322,6 +322,7 @@ def survey():
     if request.method == 'POST':
         happy_preference = request.form.get('happy_preference')
         sad_preference = request.form.get('sad_preference')
+        angry_preference = request.form.get('angry_preference')
 
         # Update or create survey responses
         happy_survey = Response.query.filter_by(mood='happy').first()
@@ -337,6 +338,13 @@ def survey():
         else:
             sad_survey = Response(mood='sad', preferred_mood_songs=sad_preference)
             db.session.add(sad_survey)
+
+        angry_survey = Response.query.filter_by(mood='angry').first()
+        if angry_survey:
+            angry_survey.preferred_mood_songs = angry_preference
+        else:
+            angry_survey = Response(mood='angry', preferred_mood_songs=angry_preference)
+            db.session.add(angry_survey)
 
         db.session.commit()
 
@@ -372,6 +380,127 @@ def emotion_chart():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+from midiutil import MIDIFile
+from flask import Flask, request, jsonify, send_file
+import os
+
+EMOTION_MUSIC_MAPPING = {
+    'happy': {
+        'tempo': 130,
+        'notes': [
+            (60, 1), (62, 1), (64, 1), (65, 1), (67, 2), (69, 1), (71, 1), (72, 2),
+            (60, 1), (64, 1), (67, 1), (65, 1), (69, 2), (71, 1), (74, 1), (72, 2),
+            (74, 1), (72, 1), (69, 1), (67, 1), (65, 2), (64, 1), (62, 1), (60, 2)
+        ]
+    },
+    'sad': {
+        'tempo': 70,
+        'notes': [
+            (60, 2), (62, 2), (63, 2), (65, 2), (67, 2), (68, 2), (70, 2), (72, 2),
+            (67, 2), (65, 2), (63, 2), (62, 2), (60, 2), (58, 2), (60, 2), (62, 2),
+            (63, 2), (65, 2), (67, 2), (68, 2), (70, 2), (72, 2), (70, 2), (67, 2)
+        ]
+    },
+    'angry': {
+        'tempo': 150,
+        'notes': [
+            (60, 0.5), (61, 0.5), (63, 0.5), (64, 0.5), (65, 0.5), (66, 0.5), (68, 0.5), (69, 0.5),
+            (70, 0.5), (72, 0.5), (74, 0.5), (76, 0.5), (77, 0.5), (79, 0.5), (81, 0.5), (82, 0.5),
+            (84, 0.5), (86, 0.5), (88, 0.5), (89, 0.5), (91, 0.5), (93, 0.5), (95, 0.5), (96, 0.5)
+        ]
+    },
+    'neutral': {
+        'tempo': 100,
+        'notes': [
+            (60, 1), (62, 1), (64, 1), (65, 1), (67, 1), (69, 1), (71, 1), (72, 1),
+            (74, 1), (76, 1), (77, 1), (79, 1), (81, 1), (83, 1), (85, 1), (86, 1),
+            (88, 1), (89, 1), (91, 1), (93, 1), (95, 1), (97, 1), (99, 1), (101, 1)
+        ]
+    },
+    'fear': {
+        'tempo': 80,
+        'notes': [
+            (60, 1), (61, 1), (63, 1), (64, 1), (65, 1), (66, 1), (68, 1), (69, 1),
+            (71, 1), (72, 1), (74, 1), (75, 1), (77, 1), (78, 1), (80, 1), (81, 1),
+            (83, 1), (84, 1), (86, 1), (87, 1), (89, 1), (90, 1), (92, 1), (93, 1),
+            (95, 1), (96, 1), (98, 1), (99, 1), (101, 1), (102, 1), (104, 1), (105, 1)
+        ]
+    }
+}
+
+def generate_music_based_on_emotion(emotion):
+    try:
+        print(f"Generating music for emotion: {emotion}")
+
+        # Get the music properties based on emotion
+        music_properties = EMOTION_MUSIC_MAPPING.get(emotion, {'tempo': 90, 'notes': [(60, 1)]})
+        print(f"Music properties: {music_properties}")
+
+        tempo = music_properties['tempo']
+        notes = music_properties['notes']
+
+        # Create a MIDI file with one track
+        midi = MIDIFile(1)
+        track = 0
+        time = 0  # Start at the beginning
+        midi.addTrackName(track, time, f"{emotion.capitalize()} Music")
+        midi.addTempo(track, time, tempo)
+
+        # Add notes to the MIDI file
+        for note, duration in notes:
+            volume = 100  # Max volume
+            midi.addNote(track, 0, note, time, duration, volume)
+            time += duration  # Move time forward by note duration
+            print(f"Added note {note} with duration {duration}")
+
+        # Define absolute path for the MIDI file
+        midi_filename = os.path.join(os.getcwd(), f'generated_music_{emotion}.mid')
+
+        # Save the MIDI file to disk
+        with open(midi_filename, 'wb') as midi_file:
+            midi.writeFile(midi_file)
+
+        print(f"MIDI file saved as {midi_filename}")
+
+        # Verify file creation
+        if not os.path.isfile(midi_filename):
+            raise FileNotFoundError(f"File {midi_filename} not found after creation.")
+
+        return midi_filename
+    except Exception as e:
+        print(f"Error generating music: {e}")
+        return None
+
+@app.route('/generate_emotion_music', methods=['GET', 'POST'])
+def emotion_music():
+    if request.method == 'GET':
+        # Render the HTML form when a GET request is made
+        return render_template('emotion_music.html')  # Make sure this template exists
+
+    if request.method == 'POST':
+        try:
+            # Ensure the content type is JSON
+            if request.content_type != 'application/json':
+                return jsonify({'error': 'Content-Type must be application/json'}), 415
+
+            # Parse the emotion from the request
+            data = request.json
+            emotion = data.get('emotion', 'neutral').lower()
+            print(f"Received emotion: {emotion}")  # Debugging: Check the received emotion
+
+            # Generate music based on the emotion
+            midi_file = generate_music_based_on_emotion(emotion)
+
+            if midi_file and os.path.isfile(midi_file):
+                print(f"Sending file: {midi_file}")  # Debugging: Check if the file exists before sending
+                return send_file(midi_file, as_attachment=True, download_name=f'generated_music_{emotion}.mid')
+            else:
+                return jsonify({'error': 'Failed to generate music'}), 500
+        except Exception as e:
+            print(f"Error handling request: {e}")  # Log the error
+            return jsonify({'error': str(e)}), 500
+
+
 
 
 if __name__ == '__main__':
@@ -379,4 +508,4 @@ if __name__ == '__main__':
         db.create_all()  # This will create the tables in the database
         if Song.query.count() == 0:  # Only load data if the table is empty
             load_csv_data()
-    app.run(host = '0.0.0.0', port=4000, debug=True)
+app.run(host = '0.0.0.0', port=4000, debug=True)
