@@ -5,4 +5,4 @@
 
 * Izmislit način da se muzika legit more slušat
 
-* dodat novu emociju: angry; ručno ubacit u dataset 70-ak angry pjesmah i dodat emotion u recognition model i survey
+
