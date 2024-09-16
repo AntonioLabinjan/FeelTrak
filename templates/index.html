@@ -22,11 +22,6 @@
             margin-bottom: 20px;
         }
         
-        #song-info {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
         #face-capture {
             margin-top: 40px;
             text-align: center;
@@ -121,12 +116,39 @@
             transform: scale(1.05);
         }
 
+        /* YouTube Player Container */
+        #youtube-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        #youtube-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        #embed-error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+
         /* Dropdown Styles */
         .dropdown {
-            position: fixed; /* Fixes the position to the top right corner */
-            top: 20px; /* Adjust top margin as needed */
-            right: 85px; /* Adjust right margin as needed */
-            z-index: 1000; /* Ensure dropdown is above other elements */
+            position: fixed; 
+            top: 20px; 
+            right: 85px; 
+            z-index: 1000;
         }
 
         .dropdown-content {
@@ -175,6 +197,8 @@
             transform: scale(1.05);
         }
     </style>
+    <!-- Load YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
     <h1>Emotion and Song Recommendation</h1>
@@ -184,7 +208,7 @@
         <h2>Capture Your Face Emotion</h2>
         <video id="video" autoplay></video>
         <br>
-        <button id="capture-button">Emotion analysis</button>
+        <button id="capture-button">Emotion Analysis</button>
     </div>
     
     <!-- Display recommended song as a card -->
@@ -196,6 +220,14 @@
         <p id="song-album"></p>
         <p id="song-release-date"></p>
         <a id="youtube-link" href="" target="_blank">Watch on YouTube</a>
+        
+        <!-- YouTube Player Container -->
+        <div id="youtube-container">
+            <div id="player"></div>
+        </div>
+        
+        <!-- Embed Error Message -->
+        <p id="embed-error-message">This video cannot be embedded. Please <a id="open-in-new-tab" href="" target="_blank">open it in a new tab</a>.</p>
     </div>
     
     <!-- Dropdown Navigation -->
@@ -204,8 +236,8 @@
         <div class="dropdown-content">
             <button onclick="window.location.href='/recommendation_history';">View Recommendation History</button>
             <button onclick="window.location.href='/mood_playlists';">View Mood Playlists</button>
-            <button onclick="window.location.href='/survey';">Take a personalization survey</button>
-            <button onclick="window.location.href='/emotion_chart';">Emotion change</button>
+            <button onclick="window.location.href='/survey';">Take a Personalization Survey</button>
+            <button onclick="window.location.href='/emotion_chart';">Emotion Chart</button>
         </div>
     </div>
     
@@ -217,13 +249,46 @@
             angry: "#FF3939"
         };
 
+        let player; // YouTube player
+
+        // Initialize YouTube IFrame API
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '315',
+                width: '560',
+                videoId: '', // Will be set dynamically
+                events: {
+                    'onReady': onPlayerReady,
+                    'onError': onPlayerError
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            // Player is ready
+        }
+
+        function onPlayerError(event) {
+            console.error("YouTube Player Error:", event.data);
+            // Hide the player and show the error message
+            document.getElementById('youtube-container').style.display = 'none';
+            document.getElementById('embed-error-message').style.display = 'block';
+        }
+
+        // Access the camera and start playing the video stream
         async function initCamera() {
             const video = document.getElementById('video');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            video.play();
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.play();
+            } catch (error) {
+                console.error("Error accessing the camera: ", error);
+                alert("Cannot access the camera. Please allow camera access or use a different device.");
+            }
         }
-    
+
+        // Handle capturing a frame from the video
         document.getElementById('capture-button').addEventListener('click', async () => {
             const video = document.getElementById('video');
             const canvas = document.createElement('canvas');
@@ -248,22 +313,23 @@
                 const songCard = document.getElementById('song-card');
                 songCard.classList.add('show');
                 
-                document.getElementById('emotion').textContent = `Emotion: ${data.emotion}`;
+                document.getElementById('emotion').textContent = `Emotion Detected: ${data.emotion}`;
                 
-                if (data.emotion === 'happy') {
-                    document.body.style.backgroundColor = moodColors.happy;
-                } else if (data.emotion === 'sad') {
-                    document.body.style.backgroundColor = moodColors.sad;
-                } else if (data.emotion === 'angry') {
-                    document.body.style.backgroundColor = moodColors.angry;
-                }
-                 else {
+                // Update the background color based on emotion
+                if (data.emotion in moodColors) {
+                    document.body.style.backgroundColor = moodColors[data.emotion];
+                } else {
                     document.body.style.backgroundColor = moodColors.neutral;
                 }
                 
                 if (data.recommended_song === 'No songs found for this mood.') {
                     document.getElementById('song-name').textContent = data.recommended_song;
+                    document.getElementById('song-artist').textContent = '';
+                    document.getElementById('song-album').textContent = '';
+                    document.getElementById('song-release-date').textContent = '';
                     document.getElementById('youtube-link').style.display = 'none';
+                    document.getElementById('youtube-container').style.display = 'none';
+                    document.getElementById('embed-error-message').style.display = 'none';
                 } else {
                     document.getElementById('song-name').textContent = `Song: ${data.recommended_song.name}`;
                     document.getElementById('song-artist').textContent = `Artist: ${data.recommended_song.artist}`;
@@ -272,21 +338,32 @@
                     
                     const youtubeLink = data.recommended_song.youtube_link;
                     document.getElementById('youtube-link').href = youtubeLink;
-                    document.getElementById('youtube-link').style.display = 'block';
+                    document.getElementById('open-in-new-tab').href = youtubeLink;
+                    
+                    // Extract the YouTube video ID from the link
+                    const videoIdMatch = youtubeLink.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/);
+                    const videoId = videoIdMatch ? videoIdMatch[1] : null;
+                    
+                    if (videoId) {
+                        // Hide any previous error messages
+                        document.getElementById('embed-error-message').style.display = 'none';
+                        document.getElementById('youtube-container').style.display = 'block';
+                        
+                        // Load the video into the YouTube player
+                        player.loadVideoById(videoId);
+                    } else {
+                        // If video ID cannot be extracted, show error message
+                        document.getElementById('youtube-container').style.display = 'none';
+                        document.getElementById('embed-error-message').style.display = 'block';
+                    }
                 }
             } else {
-                document.getElementById('emotion').textContent = `Error: ${data.error}`;
-                document.getElementById('youtube-link').style.display = 'none';
+                console.error("Error from server:", data.error);
+                alert(`Error: ${data.error}`);
             }
         });
 
-        // Toggle dropdown menu on click
-        document.querySelector('.dropbtn').addEventListener('click', () => {
-            const dropdownContent = document.querySelector('.dropdown-content');
-            const isVisible = dropdownContent.style.display === 'block';
-            dropdownContent.style.display = isVisible ? 'none' : 'block';
-        });
-
+        // Initialize the camera on page load
         window.onload = initCamera;
     </script>
 </body>
