@@ -176,6 +176,18 @@ def recommend_song(mood):
     }
 
 
+def check_consecutive_negative_emotions():
+    negative_emotions = ['angry', 'sad', 'fear']
+    
+    # Query last 5 emotions logged in the EmotionLog table
+    last_five_emotions = EmotionLog.query.order_by(EmotionLog.logged_at.desc()).limit(5).all()
+
+    # Check if there are 5 emotions and all of them are negative
+    if len(last_five_emotions) == 5:
+        return all(emotion.emotion in negative_emotions for emotion in last_five_emotions)
+    
+    return False
+
 # Route to analyze frame sent from the frontend
 @app.route('/analyze_frame', methods=['POST'])
 def analyze_frame():
@@ -203,10 +215,18 @@ def analyze_frame():
         db.session.add(emotion_log)
         db.session.commit()
         
+        # Check if the last 5 emotions are negative
+        show_motivational_popup = check_consecutive_negative_emotions()
+        
         # Get a recommended song based on the detected emotion
         recommended_song = recommend_song(dominant_emotion)
         
-        return jsonify({'emotion': dominant_emotion, 'recommended_song': recommended_song}), 200
+        return jsonify({
+            'emotion': dominant_emotion,
+            'recommended_song': recommended_song,
+            'show_motivational_popup': show_motivational_popup,
+            'motivational_message': "Everything is going to be okay!"
+        }), 200
     
     except Exception as e:
         traceback.print_exc()
@@ -220,13 +240,15 @@ def recommendation_history():
 
         for rec in recommendations:
             song = Song.query.get(rec.song_id)
-            recommended_songs.append({
-                'name': song.name,
-                'artist': song.artist,
-                'album': song.album,
-                'release_date': song.release_date,
-                'recommended_at': rec.recommended_at.strftime('%Y-%m-%d %H:%M:%S')
-            })
+            if song:  # Ensure song exists
+                recommended_songs.append({
+                    'name': song.name,
+                    'artist': song.artist,
+                    'album': song.album,
+                    'release_date': song.release_date,
+                    'recommended_at': rec.recommended_at.strftime('%Y-%m-%d %H:%M:%S'),
+                
+                })
 
         return render_template('recommendation_history.html', recommended_songs=recommended_songs)
 
@@ -249,14 +271,14 @@ def mood_playlists():
         mood = mood_tuple[0]  # Extract the mood from the tuple
         songs = Song.query.filter_by(mood=mood).order_by(func.random()).limit(10).all()
         
-        # Prepare song data without YouTube links
+        # Prepare song data with YouTube links
         song_data = []
         for song in songs:
             song_data.append({
                 'name': song.name,
                 'artist': song.artist,
                 'album': song.album,
-                'release_date': song.release_date
+                'release_date': song.release_date,
             })
         
         # Add songs to the mood playlist
@@ -499,8 +521,6 @@ def emotion_music():
         except Exception as e:
             print(f"Error handling request: {e}")  # Log the error
             return jsonify({'error': str(e)}), 500
-
-
 
 
 if __name__ == '__main__':
