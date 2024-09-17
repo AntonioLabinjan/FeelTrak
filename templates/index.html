@@ -331,16 +331,38 @@
 
         // Access the camera and start playing the video stream
         async function initCamera() {
-            const video = document.getElementById('video');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                video.play();
-            } catch (error) {
-                console.error("Error accessing the camera: ", error);
-                alert("Cannot access the camera. Please allow camera access or use a different device.");
-            }
+    const video = document.getElementById('video');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.play();
+    } catch (error) {
+        console.error("Error accessing the camera: ", error);
+        if (isMobile()) {
+            alert("Your device or browser does not support camera access. Please try using a different device or browser (preferably Chrome or Firefox with permissions enabled).");
+        } else {
+            alert("Cannot access the camera. Please allow camera access or use a different device.");
         }
+    }
+}
+
+// Initialize the camera on page load
+function isMobile() {
+    return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+window.onload = function() {
+    initCamera();
+
+    // Ensure permission prompt for camera use on mobile or restricted devices
+    navigator.permissions.query({ name: 'camera' }).then(function(result) {
+        if (result.state !== 'granted') {
+            alert("Please allow camera access to use the emotion detection feature.");
+        }
+    }).catch(function(error) {
+        console.error("Permission query error: ", error);
+    });
+};
 
         // Handle capturing a frame from the video
         document.getElementById('capture-button').addEventListener('click', async () => {
