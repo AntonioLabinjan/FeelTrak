@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect, session
 from deepface import DeepFace
 import cv2
 import numpy as np
@@ -77,6 +77,11 @@ class EmotionLog(db.Model):
     emotion = db.Column(db.String(50), nullable=False)
     logged_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+class Alarm(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.DateTime, nullable=False)  # Alarm time
+    emotion = db.Column(db.String(50), nullable=False)  # Chosen emotion
+    active = db.Column(db.Boolean, default=True)  # Whether the alarm is active
 
 # Initialize Flask-Login UserMixin
 class UserSession(UserMixin):
@@ -134,46 +139,54 @@ def index():
 
 
 def recommend_song(mood):
-    print(f"Received mood for recommendation: {mood}")
-    mood = mood.lower()
+    try:
+        print(f"Received mood for recommendation: {mood}")
+        mood = mood.lower()
 
-    # Fetch the survey response for the given mood
-    user_survey = Response.query.filter_by(mood=mood).first()
+        # Fetch the survey response for the given mood
+        user_survey = Response.query.filter_by(mood=mood).first()
 
-    if user_survey:
-        # Use the preferred mood songs from the survey response
-        preferred_mood_songs = user_survey.preferred_mood_songs
-        filtered_songs = Song.query.filter(Song.mood == preferred_mood_songs).all()
-    else:
-        # Default to songs of the same mood if no survey response exists
-        filtered_songs = Song.query.filter(Song.mood == mood).all()
+        if user_survey:
+            # Use the preferred mood songs from the survey response
+            preferred_mood_songs = user_survey.preferred_mood_songs
+            filtered_songs = Song.query.filter(Song.mood == preferred_mood_songs).all()
+        else:
+            # Default to songs of the same mood if no survey response exists
+            filtered_songs = Song.query.filter(Song.mood == mood).all()
 
-    print(f"Filtered songs based on mood: {filtered_songs}")
+        if not filtered_songs:
+            print(f"No songs found for mood: {mood}")
+            return {'error': 'No songs found for this mood.'}
 
-    if not filtered_songs:
-        return 'No songs found for this mood.'
+        # Randomly select a song from the filtered list
+        song = random.choice(filtered_songs)
 
-    # Randomly select a song
-    song = random.choice(filtered_songs)
+        # Fetch YouTube link for the song
+        youtube_link = get_youtube_link(song.name, song.artist)
+        if not youtube_link:
+            print(f"Error: Could not fetch YouTube link for {song.name} by {song.artist}.")
+            return {'error': 'Could not fetch YouTube link for the song.'}
 
-    # Get the YouTube link for the song
-    youtube_link = get_youtube_link(song.name, song.artist)
+        # Log the recommendation
+        recommendation = RecommendationHistory(
+            song_id=song.id,
+            recommended_at=datetime.now()
+        )
+        db.session.add(recommendation)
+        db.session.commit()
 
-    # Save the recommendation to history (global history for all users)
-    recommendation = RecommendationHistory(
-        song_id=song.id,
-        recommended_at=datetime.now()
-    )
-    db.session.add(recommendation)
-    db.session.commit()
+        print(f"Recommended song: {song.name} by {song.artist}")
 
-    return {
-        'name': song.name,
-        'artist': song.artist,
-        'album': song.album,
-        'release_date': song.release_date,
-        'youtube_link': youtube_link
-    }
+        return {
+            'name': song.name,
+            'artist': song.artist,
+            'album': song.album,
+            'release_date': song.release_date,
+            'youtube_link': youtube_link
+        }
+    except Exception as e:
+        print(f"Error in recommend_song: {str(e)}")
+        return {'error': str(e)}
 
 
 def check_consecutive_negative_emotions():
@@ -521,6 +534,128 @@ def emotion_music():
         except Exception as e:
             print(f"Error handling request: {e}")  # Log the error
             return jsonify({'error': str(e)}), 500
+
+
+
+# JOŠ SAMO IMPLEMENTIRAT NEKI PIP-PIP SOUND KAD SE OPALI NOTIFICATION
+
+import random, time, threading
+alarms = {}
+songs = {}
+
+
+@app.route('/set_alarm', methods=['GET', 'POST'])
+def set_alarm():
+    if request.method == 'POST':
+        try:
+            alarm_date = request.form.get('date')
+            alarm_time = request.form.get('time')
+            mood = request.form.get('mood')
+
+            if not alarm_date or not alarm_time or not mood:
+                return jsonify({'error': 'Missing required parameters.'}), 400
+
+            alarm_time_str = f"{alarm_date} {alarm_time}:00"
+
+            # Convert to datetime object
+            alarm_time_dt = datetime.strptime(alarm_time_str, '%Y-%m-%d %H:%M:%S')
+
+            # Calculate time difference
+            now = datetime.now()
+            if alarm_time_dt <= now:
+                return jsonify({'error': 'Alarm time must be in the future.'}), 400
+
+            time_diff = (alarm_time_dt - now).total_seconds()
+
+            # Store alarm information in global dictionary
+            alarm_id = len(alarms) + 1
+            alarms[alarm_id] = {'alarm_time': alarm_time_str, 'mood': mood}
+
+            # Start countdown
+            def fetch_song_after_delay(alarm_id):
+                time.sleep(time_diff)
+                with app.app_context():
+                    try:
+                        # Fetch random song based on emotion
+                        song_response = fetch_random_song(alarms[alarm_id]['mood'])
+                        songs[alarm_id] = song_response
+                    except Exception as e:
+                        songs[alarm_id] = {'error': str(e)}
+
+            threading.Thread(target=fetch_song_after_delay, args=(alarm_id,)).start()
+
+            return jsonify({'message': 'Alarm set successfully!', 'alarmDateTime': alarm_time_str, 'mood': mood}), 200
+
+        except Exception as e:
+            # Handle any exceptions that occur in the main route
+            return jsonify({'error': str(e)}), 500
+
+    # Render the alarm.html template
+    return render_template('alarm.html')
+
+
+@app.route('/get_song_info', methods=['GET'])
+def get_song_info():
+    try:
+        song_info = songs.get(len(songs), {})  # Assuming you want the latest song info
+        return jsonify(song_info)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/alarm_result')
+def alarm_result():
+    # Retrieve song information from the session
+    song_info = songs.get(len(songs), {})  # Assuming you want the latest song info
+    return render_template('alarm_triggered.html', song_info=song_info)
+
+
+import random
+from datetime import datetime
+
+def fetch_random_song(emotion):
+    try:
+        with app.app_context():  # Ensure we are in the application context
+            print(f"Received emotion for random song fetching: {emotion}")
+
+            # Query the database for songs that match the given emotion
+            songs = Song.query.filter_by(mood=emotion).all()  # Change to the correct field
+
+            if not songs:
+                print(f"No songs found for emotion: {emotion}")
+                return {'error': 'No songs found for the specified emotion.'}
+
+            # Select a random song from the list
+            random_song = random.choice(songs)
+
+            # Fetch YouTube link for the song
+            youtube_link = get_youtube_link(random_song.name, random_song.artist)
+            if not youtube_link:
+                print(f"Error: Could not fetch YouTube link for {random_song.name} by {random_song.artist}.")
+                return {'error': 'Could not fetch YouTube link for the song.'}
+
+            # Log the recommendation
+            recommendation = RecommendationHistory(
+                song_id=random_song.id,
+                recommended_at=datetime.now()
+            )
+            db.session.add(recommendation)
+            db.session.commit()
+
+            print(f"Recommended song: {random_song.name} by {random_song.artist}")
+
+            return {
+                'name': random_song.name,
+                'artist': random_song.artist,
+                'album': random_song.album,
+                'release_date': random_song.release_date,
+                'youtube_link': youtube_link
+            }
+
+    except Exception as e:
+        print(f"Error in fetch_random_song: {str(e)}")
+        return {'error': str(e)}
+
 
 
 if __name__ == '__main__':
