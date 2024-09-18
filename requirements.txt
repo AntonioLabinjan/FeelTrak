@@ -11,3 +11,4 @@ Flask-Migrate
 google-api-python-client
 SQLAlchemy
 plotly 
+tf-keras
