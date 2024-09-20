@@ -1,6 +1,6 @@
-# Emotion-based-music-generator-and-reccomender
+oni# Emotion-based-music-generator-and-reccomender
 
-* MoodTunes - radni naziv
+* FeelTrak
 * hosted link s sjebanon bazon
 * https://music-a2da.onrender.com
 
