@@ -603,7 +603,7 @@ def get_song_info():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/alarm_result')
+@app.route('/alarm_result', methods=['GET', 'POST'])
 def alarm_result():
     # Retrieve song information from the session
     song_info = songs.get(len(songs), {})  # Assuming you want the latest song info
@@ -655,6 +655,33 @@ def fetch_random_song(emotion):
     except Exception as e:
         print(f"Error in fetch_random_song: {str(e)}")
         return {'error': str(e)}
+
+
+@app.route('/random_song')
+def random_song():
+    # Get all songs from the Song model
+    songs = Song.query.all()
+
+    if not songs:
+        return jsonify({'error': 'No songs available'}), 404
+
+    # Select a random song
+    random_song = random.choice(songs)
+
+
+    # Log the recommendation in the RecommendationHistory model
+    new_recommendation = RecommendationHistory(song_id=random_song.id)
+    db.session.add(new_recommendation)
+    db.session.commit()
+
+    # Return song details with trivia
+    return jsonify({
+        'name': random_song.name,
+        'artist': random_song.artist,
+        'album': random_song.album,
+        'release_date': random_song.release_date,
+        'mood': random_song.mood,
+    })
 
 
 
