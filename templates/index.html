@@ -241,6 +241,39 @@
 .close:focus {
     color: #f0f0f0;
 }
+
+.cool-button {
+        background: linear-gradient(135deg, #6e45e2, #88d3ce);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out, background 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        margin-top: 20px;
+    }
+
+    /* Hover Effect */
+    .cool-button:hover {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #88d3ce, #6e45e2);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Clicked Effect */
+    .cool-button:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Add a smooth transition effect to the text display */
+    #randomSongDisplay {
+        margin-top: 20px;
+        transition: opacity 0.3s ease-in-out;
+    }
     </style>
     <!-- Load YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -281,7 +314,10 @@
             </div>
         </div>
     </div>
-    
+
+    <button id="randomSongButton"class="cool-button">Random Song of the Day</button>
+    <div id="randomSongDisplay"></div>
+
     <!-- Dropdown Navigation -->
     <div class="dropdown">
         <button class="dropbtn">Menu</button>
@@ -350,6 +386,27 @@
 function isMobile() {
     return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
+
+document.getElementById("randomSongButton").addEventListener("click", function() {
+        document.getElementById("randomSongDisplay").style.opacity = 0;
+
+        fetch('/random_song')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("randomSongDisplay").innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    document.getElementById("randomSongDisplay").innerHTML = `
+                        <h3>${data.name}</h3>
+                        <p>By: ${data.artist}</p>
+                        <p>Album: ${data.album}</p>
+                        <p>Release Date: ${data.release_date}</p>
+                        <p>Mood: ${data.mood}</p>
+                    `;
+                }
+                document.getElementById("randomSongDisplay").style.opacity = 1;
+            });
+    });
 
 window.onload = function() {
     initCamera();
