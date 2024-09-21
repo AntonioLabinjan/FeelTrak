@@ -1,6 +1,4 @@
- Emotion-based-music-generator-and-reccomender
-
-* FeelTrak
+* FeelTrak by AM Studios 
 * hosted link s sjebanon bazon
 * https://music-a2da.onrender.com
 * yt link
