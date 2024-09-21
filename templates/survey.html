@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Preference Survey</title>
+    <style>
+        /* Body and container styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #2d2f33;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #3a3d41;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #e6e6e6;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin: 20px 0;
+        }
+
+        label {
+            font-size: 18px;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 10px;
+            padding: 12px;
+            background-color: #4a4d52;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        label.selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: fixed;
+            top: 20px;
+            right: 50px;
+            z-index: 1000;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #1d1f21;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content button {
+            color: #f0f0f0;
+            padding: 12px 16px;
+            text-align: center;
+            background-color: #2d2f33;
+            border: none;
+            display: block;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #3a3d41;
+            transform: scale(1.05);
+        }
+
+        .dropdown:focus-within .dropdown-content {
+            display: block;
+        }
+
+        .dropbtn {
+            background-color: #2d2f33;
+            color: #f0f0f0;
+            padding: 12px 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .dropbtn:hover {
+            background-color: #3a3d41;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Dropdown Menu -->
+    <div class="dropdown">
+        <button class="dropbtn">Menu</button>
+        <div class="dropdown-content">
+            <button onclick="window.location.href='/';">Home</button>
+            <button onclick="window.location.href='/recommendation_history';">View Recommendation History</button>
+            <button onclick="window.location.href='/mood_playlists';">View Mood Playlists</button>
+            <button onclick="window.location.href='/survey';">Take a Personalization Survey</button>
+            <button onclick="window.location.href='/emotion_chart';">Emotion Chart</button>
+            <button onclick="window.location.href='/set_alarm';">Set Alarm</button>
+            <button onclick="window.location.href='/generate_emotion_music';">Generate Samples</button>
+        </div>
+    </div>
+
+    <!-- Survey Form -->
+    <div class="container">
+        <h1>Music Recommendation Survey</h1>
+        <form method="POST">
+            <h2>When you are happy, which kind of music do you prefer?</h2>
+            <label><input type="radio" name="happy_preference" value="happy" required> Happy Songs</label>
+            <label><input type="radio" name="happy_preference" value="sad" required> Sad Songs</label>
+            <label><input type="radio" name="happy_preference" value="angry" required> Angry Songs</label>
+
+            <h2>When you are sad, which kind of music do you prefer?</h2>
+            <label><input type="radio" name="sad_preference" value="happy" required> Happy Songs</label>
+            <label><input type="radio" name="sad_preference" value="sad" required> Sad Songs</label>
+            <label><input type="radio" name="sad_preference" value="angry" required> Angry Songs</label>
+
+            <h2>When you are angry, which kind of music do you prefer?</h2>
+            <label><input type="radio" name="angry_preference" value="happy" required> Happy Songs</label>
+            <label><input type="radio" name="angry_preference" value="sad" required> Sad Songs</label>
+            <label><input type="radio" name="angry_preference" value="angry" required> Angry Songs</label>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        // Function to handle changing background color on radio selection
+        document.querySelectorAll('input[type="radio"]').forEach((radio) => {
+            radio.addEventListener('change', function() {
+                // Remove 'selected' class from all labels
+                document.querySelectorAll('label').forEach((label) => {
+                    label.classList.remove('selected');
+                });
+
+                // Add 'selected' class to the parent label of the checked radio
+                if (this.checked) {
+                    this.parentNode.classList.add('selected');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

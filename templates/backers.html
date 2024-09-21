@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kickstarter Backers</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #75ff8e, #b68705);
+            color: #0c0c0c;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .backer-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .backer-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .backer-item:hover {
+            transform: scale(1.05);
+        }
+
+        .backer-name {
+            font-size: 1.5em;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .backer-pledge {
+            font-size: 1.2em;
+            color: #ffec99;
+        }
+
+        .backer-message {
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kickstarter Backers</h1>
+        <ul class="backer-list">
+            {% for backer in backers %}
+            <li class="backer-item">
+                <p class="backer-name">{{ backer.name }}</p>
+                <p class="backer-pledge">{{ backer.pledge }}</p>
+                <p class="backer-message">"{{ backer.message }}"</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

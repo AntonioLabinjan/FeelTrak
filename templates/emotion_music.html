@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion-Based Music Sample Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c2c2c; /* Dark background */
+            color: #f0f0f0; /* Light text color for readability */
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #444; /* Slightly lighter background for container */
+            padding: 20px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3); /* Adjust shadow for dark theme */
+            text-align: center;
+            border-radius: 8px; /* Rounded corners for container */
+        }
+        h1 {
+            color: #fff; /* White for header text */
+        }
+        label {
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        select {
+            font-size: 16px;
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            background-color: #333; /* Dark background for select dropdown */
+            color: #fff; /* Light text for dropdown */
+            border: 1px solid #666;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin-top: 20px;
+        }
+        /* Dropdown Styles */
+        .dropdown {
+            position: fixed; 
+            top: 20px; 
+            right: 85px; 
+            z-index: 1000;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #1d1f21;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content button {
+            color: #f0f0f0;
+            padding: 12px 16px;
+            text-align: center;
+            background-color: #2d2f33;
+            border: none;
+            display: block;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #3a3d41;
+            transform: scale(1.05);
+        }
+
+        .dropdown:focus-within .dropdown-content {
+            display: block;
+        }
+
+        .dropbtn {
+            background-color: #2d2f33;
+            color: #f0f0f0;
+            padding: 12px 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .dropbtn:hover {
+            background-color: #3a3d41;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dropdown">
+        <button class="dropbtn">Menu</button>
+        <div class="dropdown-content">
+            <button onclick="window.location.href='/';">Home</button>
+            <button onclick="window.location.href='/recommendation_history';">View Recommendation History</button>
+            <button onclick="window.location.href='/mood_playlists';">View Mood Playlists</button>
+            <button onclick="window.location.href='/survey';">Take a Personalization Survey</button>
+            <button onclick="window.location.href='/emotion_chart';">Emotion Chart</button>
+            <button onclick="window.location.href='/set_alarm';">Alarm</button>
+            <button onclick="window.location.href='/generate_emotion_music';">Genrate Samples</button>
+        </div>
+    </div>
+    
+
+<div class="container">
+    <h1>AI Generated Music Samples</h1>
+    <p>Select an emotion to generate music samples:</p>
+
+    <form id="emotion-form">
+        <label for="emotion">Choose an emotion:</label>
+        <select id="emotion" name="emotion">
+            <option value="happy">Happy</option>
+            <option value="sad">Sad</option>
+            <option value="angry">Angry</option>
+            <option value="neutral">Neutral</option>
+            <option value="fear">Fear</option>
+        </select>
+        <button type="button" onclick="generateEmotionMusic()">Generate Music</button>
+    </form>
+
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+    function generateEmotionMusic() {
+        const selectedEmotion = document.getElementById('emotion').value;
+        document.getElementById('message').innerHTML = 'Generating music for ' + selectedEmotion + '...';
+
+        fetch('/generate_emotion_music', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ emotion: selectedEmotion }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Music generation failed');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `generated_music_${selectedEmotion}.mid`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            document.getElementById('message').innerHTML = 'Music generated successfully!';
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            document.getElementById('message').innerHTML = 'Error generating music. Please try again.';
+        });
+    }
+</script>
+
+</body>
+</html>
