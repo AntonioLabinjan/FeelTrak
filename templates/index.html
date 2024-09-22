@@ -274,6 +274,29 @@
         margin-top: 20px;
         transition: opacity 0.3s ease-in-out;
     }
+
+    #emoji-container {
+    position: relative; /* This makes the emoji position relative to this container */
+    text-align: left;
+    margin-top: 20px;
+    overflow: hidden; /* Optional: hide overflow if needed */
+}
+
+
+@keyframes move-left-right {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+
+#emojiImage {
+    max-width: 100px;
+    display: none; /* Initially hidden */
+    animation: move-left-right 15s ease-in-out infinite; /* Add this line */
+}
+
+
     </style>
     <!-- Load YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -281,6 +304,13 @@
 <body>
     <h1>FeelTrak</h1>
     
+    <!-- Add this inside the song-card div or anywhere appropriate -->
+    <div id="emoji-container">
+        <!-- Example HTML for the emoji image -->
+        <img id="emojiImage" src="" alt="Emotion Emoji" style="display: none; max-width: 100px;">
+    </div>
+
+
     <!-- Face capture section -->
     <div id="face-capture">
         <h2>Capture Your Face Emotion</h2>
@@ -289,6 +319,8 @@
         <button id="capture-button">Emotion Analysis</button>
     </div>
     
+    
+
     <!-- Display recommended song as a card -->
     <div id="song-card">
         <h2>Recommended Song</h2>
@@ -299,6 +331,8 @@
         <p id="song-release-date"></p>
         <a id="youtube-link" href="" target="_blank">Watch on YouTube</a>
         
+
+
         <!-- YouTube Player Container -->
         <div id="youtube-container">
             <div id="player"></div>
@@ -306,6 +340,9 @@
         
         <!-- Embed Error Message -->
         <p id="embed-error-message">This video cannot be embedded. Please <a id="open-in-new-tab" href="" target="_blank">open it in a new tab</a>.</p>
+
+
+        
 
         <div id="motivational-popup" class="modal">
             <div class="modal-content">
@@ -422,6 +459,34 @@ window.onload = function() {
     });
 };
 
+const emojiImage = document.getElementById('emojiImage');
+
+async function fetchEmojiForMood(mood) {
+    try {
+        const response = await fetch('/get_emoji', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ mood: mood }),
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            
+            emojiImage.src = url; // Set the image source to the blob URL
+            emojiImage.style.display = 'block'; // Make the emoji visible
+        } else {
+            const errorData = await response.json();
+            console.error("Error fetching emoji:", errorData.error);
+        }
+    } catch (error) {
+        console.error("Error in fetchEmojiForMood:", error);
+    }
+}
+
+
         // Handle capturing a frame from the video
         document.getElementById('capture-button').addEventListener('click', async () => {
             const video = document.getElementById('video');
@@ -448,6 +513,7 @@ window.onload = function() {
                 songCard.classList.add('show');
                 
                 document.getElementById('emotion').textContent = `Emotion Detected: ${data.emotion}`;
+                fetchEmojiForMood(data.emotion);  // Call this function here
                 
                 // Update the background color based on emotion
                 if (data.emotion in moodColors) {
