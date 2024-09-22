@@ -93,6 +93,58 @@ class UserSession(UserMixin):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
+EMOJI_FOLDER = "C:/Users/Korisnik/Desktop/CV_MUSIC/face_emotion_analysis/emojis"
+
+EMOTION_EMOJIS = {
+    'happy': [f'happy({i}).jpg' for i in range(1, 5)],
+    'angry': [f'angry({i}).jpg' for i in range(1, 5)],
+    'calm': [f'calm({i}).jpg' for i in range(1, 5)],
+    'sad': [f'sad({i}).jpg' for i in range(1, 5)]
+}
+
+def spawn_emoji(mood):
+    try:
+        print(f"Received mood for emoji: {mood}")
+        mood = mood.lower()
+
+        if mood not in EMOTION_EMOJIS:
+            print(f"No emojis found for mood: {mood}")
+            return {'error': 'No emojis found for this mood.'}
+
+        selected_emoji = random.choice(EMOTION_EMOJIS[mood])
+        emoji_path = os.path.join(EMOJI_FOLDER, selected_emoji)
+
+        if not os.path.exists(emoji_path):
+            print(f"Error: Emoji file not found for {selected_emoji}")
+            return {'error': 'Emoji file not found.'}
+
+        print(f"Selected emoji: {selected_emoji} for mood: {mood}")
+
+        # Convert to forward slashes for web use, but keep the original for serving
+        return {'emoji_path': emoji_path.replace('\\', '/')}
+
+    except Exception as e:
+        print(f"Error in spawn_emoji: {str(e)}")
+        return {'error': str(e)}
+
+@app.route('/get_emoji', methods=['POST', 'GET'])
+def get_emoji():
+    data = request.get_json()
+    mood = data.get('mood')
+
+    if not mood:
+        return jsonify({'error': 'No mood provided'}), 400
+
+    result = spawn_emoji(mood)
+    
+    if 'error' in result:
+        return jsonify(result), 500
+    
+    # Use the original path with backslashes to send the file
+    return send_file(result['emoji_path'].replace('/', '\\'), mimetype='image/jpeg')
+
+
 # Function to load CSV data into the database
 def load_csv_data():
     df = pd.read_csv("C:/Users/Korisnik/Desktop/CV_MUSIC/face_emotion_analysis/data_moods (1) (1).csv")
@@ -233,17 +285,53 @@ def analyze_frame():
         
         # Get a recommended song based on the detected emotion
         recommended_song = recommend_song(dominant_emotion)
-        
+
+        # Spawn an emoji based on the detected emotion
+        emoji_result = spawn_emoji(dominant_emotion)
+
+        if 'error' in emoji_result:
+            return jsonify({
+                'emotion': dominant_emotion,
+                'recommended_song': recommended_song,
+                'show_motivational_popup': show_motivational_popup,
+                'motivational_message': "Everything is going to be okay!",
+                'emoji_error': emoji_result['error']
+            }), 200
+
+        # Return the emoji path as well
+        response = {
+            'emotion': dominant_emotion,
+            'recommended_song': recommended_song,
+            'show_motivational_popup': show_motivational_popup,
+            'motivational_message': "Everything is going to be okay!",
+            'emoji_path': emoji_result['emoji_path']
+        }
+        print(response)  # Add this line to see the full response structure
+        return jsonify(response), 200
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+'''
         return jsonify({
             'emotion': dominant_emotion,
             'recommended_song': recommended_song,
             'show_motivational_popup': show_motivational_popup,
-            'motivational_message': "Everything is going to be okay!"
+            'motivational_message': "Everything is going to be okay!",
+            'emoji_path': emoji_result['emoji_path']
         }), 200
     
     except Exception as e:
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+'''
+def check_emoji_directory():
+    if not os.path.exists(EMOJI_FOLDER):
+        print(f"Emoji folder does not exist: {EMOJI_FOLDER}")
+    else:
+        print("Emoji folder contents:", os.listdir(EMOJI_FOLDER))
 
 @app.route('/recommendation_history')
 def recommendation_history():
@@ -684,6 +772,15 @@ def random_song():
     })
 
 
+@app.route('/backers', methods = ['POST', 'GET'])
+def show_backers():
+    backers = [
+        {"name": "Poldo", "pledge": "$1", "message": "Porka pipa rota.  Ča je to, koji boh?"},
+        {"name": "Aldo", "pledge": "$100", "message": "Ja ću to kupit, ma samo ako imaju i Elija Piska gori."},
+        {"name": "Marijo", "pledge": "$50", "message": "Ča imate i vina s tin?"}
+        # Add more backers here manually
+    ]
+    return render_template('backers.html', backers=backers)
 
 if __name__ == '__main__':
     with app.app_context():
