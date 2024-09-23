@@ -1,4 +1,4 @@
-NAĆ NEKI BOLJI API!!!!!!! JOŠ SAMO TO TRIBA RIJEŠIT!!!
+NAĆ NEKI BOLJI API!!!!!!! JOŠ SAMO TO TRIBA RIJEŠIT!!! (I HOSTAT)
 
 
 * FeelTrak by AM Studios 
