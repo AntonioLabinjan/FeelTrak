@@ -7,6 +7,7 @@
 * Dodat special loading page di će se izlistat backeri (to je jedan od rewardova hihi)
 * Mood based playliste su premium feature
 * Emoji je premium feature
+* TimeMachine je premium feature
 
 
 
