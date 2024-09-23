@@ -4,10 +4,12 @@
 * yt link
 * https://youtu.be/WLjzDhf5Fws
 
-* Dodat special loading page di će se izlistat backeri (to je jedan od rewardova hihi)
+PREMIUM FEATURES: 
+* Dodat special loading page di će se izlistat backeri (to je jedan od rewardova hihi) (dodano)
 * Mood based playliste su premium feature
 * Emoji je premium feature
 * TimeMachine je premium feature
+* AI sample generator je premium feature
 
 
 
