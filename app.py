@@ -804,6 +804,26 @@ def show_backers():
     ]
     return render_template('backers.html', backers=backers)
 
+@app.route('/musical_time_machine', methods=['GET', 'POST'])
+def musical_time_machine():
+    if request.method == 'POST':
+        mood = request.form.get('mood')
+        decade = request.form.get('decade')  # e.g., '1970s'
+        
+        # Extract the first three digits of the decade
+        year_start = decade[:3]
+        
+        # Query the database for songs matching the mood and decade, limiting to 25 songs
+        songs = get_songs_by_mood_and_decade(mood, year_start)
+        
+        return render_template('musical_time_machine.html', songs=songs, mood=mood, decade=decade)
+    
+    return render_template('musical_time_machine.html', songs=None)
+
+def get_songs_by_mood_and_decade(mood, year_start):
+    return Song.query.filter(Song.mood == mood, Song.release_date.like(f"{year_start}%")).limit(15).all()
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # This will create the tables in the database
