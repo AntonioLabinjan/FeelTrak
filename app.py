@@ -158,31 +158,7 @@ def load_csv_data():
 YOUTUBE_API_KEY = 'AIzaSyB-XtO_O3GRPSvjeZgRtqO9nwgJaMxG6fs'
 YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
 
-# Function to fetch YouTube link for the recommended song
-def get_youtube_link(song_name, artist):
-    search_query = f"{song_name} {artist}"
-    params = {
-        'part': 'snippet',
-        'q': search_query,
-        'key': YOUTUBE_API_KEY,
-        'type': 'video',
-        'maxResults': 1
-    }
-    
-    response = requests.get(YOUTUBE_SEARCH_URL, params=params)
-    
-    if response.status_code == 200:
-        results = response.json().get('items')
-        if results:
-            video_id = results[0]['id']['videoId']
-            youtube_link = f"https://www.youtube.com/watch?v={video_id}"
-            return youtube_link
-        else:
-            print("No results found on YouTube.")
-    else:
-        print(f"Error response from YouTube API: {response.text}")
-    
-    return None
+
 
 # Route for the homepage
 @app.route('/')
@@ -215,10 +191,7 @@ def recommend_song(mood):
 
         # Fetch YouTube link for the song
         youtube_link = get_youtube_link(song.name, song.artist)
-        if not youtube_link:
-            print(f"Error: Could not fetch YouTube link for {song.name} by {song.artist}.")
-            return {'error': 'Could not fetch YouTube link for the song.'}
-
+        
         # Log the recommendation
         recommendation = RecommendationHistory(
             song_id=song.id,
@@ -228,6 +201,9 @@ def recommend_song(mood):
         db.session.commit()
 
         print(f"Recommended song: {song.name} by {song.artist}")
+
+        # If the YouTube link is None, include an error message
+        youtube_link = youtube_link if youtube_link else "YouTube link not available (quota exceeded)"
 
         return {
             'name': song.name,
@@ -240,6 +216,41 @@ def recommend_song(mood):
         print(f"Error in recommend_song: {str(e)}")
         return {'error': str(e)}
 
+
+# Function to fetch YouTube link for the recommended song
+def get_youtube_link(song_name, artist):
+    search_query = f"{song_name} {artist}"
+    params = {
+        'part': 'snippet',
+        'q': search_query,
+        'key': YOUTUBE_API_KEY,
+        'type': 'video',
+        'maxResults': 1
+    }
+    
+    try:
+        response = requests.get(YOUTUBE_SEARCH_URL, params=params)
+
+        # Check if the API request was successful
+        if response.status_code == 200:
+            results = response.json().get('items')
+            if results:
+                video_id = results[0]['id']['videoId']
+                youtube_link = f"https://www.youtube.com/watch?v={video_id}"
+                return youtube_link
+            else:
+                print("No results found on YouTube.")
+        elif response.status_code == 403:
+            # Handle quota exceeded or API key issues
+            print("YouTube API quota exceeded or access forbidden.")
+        else:
+            print(f"Error response from YouTube API: {response.text}")
+    
+    except Exception as e:
+        print(f"Error fetching YouTube link: {str(e)}")
+    
+    # If something went wrong, return None
+    return None
 
 def check_consecutive_negative_emotions():
     negative_emotions = ['angry', 'sad', 'fear']
@@ -360,6 +371,8 @@ def recommendation_history():
 from sqlalchemy.sql import func
 
 # Route for mood playlists
+
+'''
 @app.route('/mood_playlists')
 def mood_playlists():
     # Get all distinct moods from the Song table
@@ -375,11 +388,19 @@ def mood_playlists():
         # Prepare song data with YouTube links
         song_data = []
         for song in songs:
+            # Call the get_youtube_link function to fetch YouTube link for the song
+            youtube_link = get_youtube_link(song.name, song.artist)
+            if not youtube_link:
+                print(f"Error: Could not fetch YouTube link for {song.name} by {song.artist}.")
+                youtube_link = None  # Optional: You can choose to handle this case differently
+
+            # Add song data, including YouTube link
             song_data.append({
                 'name': song.name,
                 'artist': song.artist,
                 'album': song.album,
                 'release_date': song.release_date,
+                'youtube_link': youtube_link  # Use fetched YouTube link
             })
         
         # Add songs to the mood playlist
@@ -387,6 +408,7 @@ def mood_playlists():
 
     return render_template('mood_playlists.html', mood_playlists=mood_playlists)
 
+'''
 # Admin login route
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
