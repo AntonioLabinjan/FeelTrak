@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musical Time Machine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #2c3e50, #4ca1af);
+            color: #fff;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .form-control {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+        }
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.5);
+            color: #000;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        .btn-primary {
+            background-color: #2980b9;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #3498db;
+        }
+        .list-group-item {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+        }
+        .list-group-item:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Musical Time Machine</h1>
+        <form action="/musical_time_machine" method="POST">
+            <div class="form-group">
+                <label for="mood">Select Mood:</label>
+                <select name="mood" class="form-control" required>
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="energetic">Energetic</option>
+                    <option value="relaxed">Relaxed</option>
+                    <option value="angry">Angry</option>
+                    <!-- Add more moods as needed -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="decade">Select Decade:</label>
+                <select name="decade" class="form-control" required>
+                    <option value="1970s">1970s</option>
+                    <option value="1980s">1980s</option>
+                    <option value="1990s">1990s</option>
+                    <option value="2000s">2000s</option>
+                    <option value="2010s">2010s</option>
+                    <!-- Add more decades as needed -->
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Generate Playlist</button>
+        </form>
+
+        {% if songs %}
+            <h2 class="mt-5">Playlist for {{ mood }} in the {{ decade }}</h2>
+            <ul class="list-group mt-3">
+                {% for song in songs %}
+                    <li class="list-group-item">
+                        <strong>{{ song.name }}</strong> by {{ song.artist }} ({{ song.release_date }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% elif songs is not none %}
+            <h2 class="mt-5">No songs found for {{ mood }} in the {{ decade }}.</h2>
+        {% endif %}
+    </div>
+</body>
+</html>
