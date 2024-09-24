@@ -8,6 +8,8 @@ UBACIT FACE DETECTION U VREMEPLOV
 * yt link
 * https://youtu.be/WLjzDhf5Fws
 
+* Hitit neki link za downloadat exe u promo site (ali ne još)
+
 PREMIUM FEATURES: 
 * Dodat special loading page di će se izlistat backeri (to je jedan od rewardova hihi) (dodano)
 * Mood based playliste su premium feature
