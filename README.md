@@ -83,7 +83,7 @@ Take a trip down memory lane with our **Musical Time Machine**. This feature wil
 Unlock the ability for users to create and share mood-based playlists with friends. Discover how your friends are feeling and share music that uplifts or complements their emotions!
 
 #### **Stretch Goal #6 - $7,500: Offline Mode**
-Enjoy MoodTrek anywhere—**even without internet access**! With offline mode, you'll be able to download mood-specific playlists and enjoy them no matter where you are.
+Enjoy FeelTrak anywhere—**even without internet access**! With offline mode, you'll be able to download mood-specific playlists and enjoy them no matter where you are.
 
 #### **Stretch Goal #7 - $10,000: AI-Generated Lyrics**
 Bring your emotions to life with **AI-generated song lyrics**! This premium feature will generate custom lyrics based on your current mood, allowing you to create unique and personal songs.
