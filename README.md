@@ -76,10 +76,10 @@ Add a stunning **visual experience** with dynamic mood-triggered visualizations 
 Unlock **AI-generated custom emojis** that reflect your exact emotional state! These unique emojis will change based on how the app interprets your mood, adding a fun and personal touch to your music experience.
 
 #### **Stretch Goal #3 - $2,000: Full Mood Analytics**
-Take a deeper dive into your emotions with **comprehensive mood analytics**. Track how your emotional patterns change over time and see personalized insights based on the music you listen to.
+Take a deeper dive into your emotions with **comprehensive mood analytics**. Track how your emotional patterns change over time and see personalized insights based on the music you listen to using insightful charts.
 
-#### **Stretch Goal #4 - $3,000: Super Cool Musical Time Machine**
-Take a trip down memory lane with our **Musical Time Machine**. This feature will allow users to revisit any previous mood and see what they were listening to at that time, complete with mood-based playlists for different moments in your emotional journey.
+#### **Stretch Goal #4 - $3,000: Super Cool Musical Time Machine and Emotion-based "alarm"**
+Take a trip down memory lane with our **Musical Time Machine**. This feature will allow users to revisit any of the passed decades and find a playlist with mood of their choice along with scheduled song recommendations with emotion of their choice.
 
 #### **Stretch Goal #5 - $5,000: Collaborative Playlists**
 Unlock the ability for users to create and share mood-based playlists with friends. Discover how your friends are feeling and share music that uplifts or complements their emotions!
