@@ -1,5 +1,7 @@
 NAĆ NEKI BOLJI API!!!!!!! JOŠ SAMO TO TRIBA RIJEŠIT!!!
 
+kickstarter link: https://www.kickstarter.com/profile/1706300933/about
+
 * FeelTrak by FeelTune studio
 * hosted link s sjebanon bazon
 * https://music-a2da.onrender.com
