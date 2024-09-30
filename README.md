@@ -20,13 +20,13 @@ PREMIUM FEATURES:
 
 ---
 
-## **Welcome to MoodTrek: Music Based on Your Emotions!**
+## **Welcome to FeelTrak: Music Based on Your Emotions!**
 
-MoodTrek is an innovative, AI-powered music app that recognizes your emotions and suggests the perfect songs to match your mood. Whether you’re feeling happy, sad, or somewhere in between, MoodTrek takes the guesswork out of finding the right track by curating a playlist just for you. We believe that music should adapt to how you feel—and MoodTrek is here to make that happen.
+FeelTrak is an innovative, AI-powered music app that recognizes your emotions and suggests the perfect songs to match your mood. Whether you’re feeling happy, sad, or somewhere in between, FeelTrak takes the guesswork out of finding the right track by curating a playlist just for you. We believe that music should adapt to how you feel—and FeelTrak is here to make that happen.
 
 ### **Why We Need Your Help**
 
-We've developed an exciting BETA version, and now we need your support to take MoodTrek to the next level! Our modest goal of **$500** will allow us to finalize the core experience and bring the best emotional music app to users worldwide.
+We've developed an exciting BETA version, and now we need your support to take FeelTrak to the next level! Our modest goal of **$500** will allow us to finalize the core experience and bring the best emotional music app to users worldwide.
 
 With your contributions, we’ll be able to:
 - **Polish the user experience** to make it intuitive and smooth.
@@ -37,7 +37,7 @@ With your contributions, we’ll be able to:
 
 ### **Features You’ll Love**
 
-Here’s a look at what’s already in the app and the premium features that will elevate MoodTrek to the next level:
+Here’s a look at what’s already in the app and the premium features that will elevate FeelTrak to the next level:
 
 #### **Current Features:**
 - **Emotion Recognition**: Our AI detects your mood using facial recognition and suggests songs accordingly.
@@ -56,7 +56,7 @@ Here’s a look at what’s already in the app and the premium features that wil
 
 ### **Our Modest Goal: $500**
 
-We’re aiming to raise **$500** to complete and enhance MoodTrek BETA with the following key elements:
+We’re aiming to raise **$500** to complete and enhance FeelTrak BETA with the following key elements:
 - **User Experience & Design Polishing**: Ensuring the app is smooth and intuitive for users.
 - **Marketing & Promotion**: Getting the word out and growing our user base.
 - **Server & Maintenance Costs**: Supporting the infrastructure needed to run the app efficiently.
@@ -65,7 +65,7 @@ We’re aiming to raise **$500** to complete and enhance MoodTrek BETA with the 
 
 ### **Stretch Goals**
 
-We believe in pushing beyond the basics to make MoodTrek truly exceptional. Should we exceed our initial goal, we’ll use additional funds to bring you even more groundbreaking features and improvements!
+We believe in pushing beyond the basics to make FeelTrak truly exceptional. Should we exceed our initial goal, we’ll use additional funds to bring you even more groundbreaking features and improvements!
 
 #### **Stretch Goal #1 - $750: Mood-Triggered Visualizations and Custom Song Adding**
 Add a stunning **visual experience** with dynamic mood-triggered visualizations that respond to the songs you're listening to. Let your screen mirror your mood with beautiful graphics. Also, add your own songs in app by getting acces to premium "admin" interface.
@@ -92,7 +92,7 @@ Bring your emotions to life with **AI-generated song lyrics**! This premium feat
 
 ### **Rewards: Be a Part of the Music Revolution**
 
-By backing MoodTrek BETA, you won’t just help us finish development—you’ll get some amazing perks, too! Choose from our tiered reward options to get early access, special features, and even a say in how the app evolves.
+By backing FeelTrak, you won’t just help us finish development—you’ll get some amazing perks, too! Choose from our tiered reward options to get early access, special features, and even a say in how the app evolves.
 
 ### **Pledge $10**
 - **Early Access**: Be one of the first to use the app and embark on your emotional music journey.
@@ -104,7 +104,7 @@ By backing MoodTrek BETA, you won’t just help us finish development—you’ll
 - **Name in the Supporters Section**: Your name will be permanently credited in the app's "Supporters" section, showing your contribution to making this app a reality.
 
 ### **Pledge $100**
-- **Premium App Version**: Get the full premium version of MoodTrek, with unlimited song recommendations and deeper emotional insights.
+- **Premium App Version**: Get the full premium version of FeelTrak, with unlimited song recommendations and deeper emotional insights.
 
 ### **Pledge $500**
 - **Exclusive Q&A Session**: Join an exclusive live Q&A session with the development team. Learn about the creation process and ask your burning questions!
@@ -116,7 +116,7 @@ By backing MoodTrek BETA, you won’t just help us finish development—you’ll
 
 ### **Join Us on This Musical Journey**
 
-We’re incredibly excited about what MoodTrek BETA can offer, but we can’t do it without your help. Whether you’re pledging $10 for early access or $1,000+ to help us shape the future of the app, every bit of support brings us closer to delivering the best emotional music experience possible.
+We’re incredibly excited about what FeelTrak BETA can offer, but we can’t do it without your help. Whether you’re pledging $10 for early access or $1,000+ to help us shape the future of the app, every bit of support brings us closer to delivering the best emotional music experience possible.
 
 Together, we can revolutionize how music interacts with our emotions. Let’s make this dream a reality!
 
