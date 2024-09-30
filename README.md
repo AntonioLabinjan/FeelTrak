@@ -1,6 +1,4 @@
-NAĆ NEKI BOLJI API!!!!!!! JOŠ SAMO TO TRIBA RIJEŠIT!!! (I HOSTAT)
-UBACIT FACE DETECTION U VREMEPLOV 
-
+NAĆ NEKI BOLJI API!!!!!!! JOŠ SAMO TO TRIBA RIJEŠIT!!!
 
 * FeelTrak by AM Studios 
 * hosted link s sjebanon bazon
@@ -69,16 +67,16 @@ We’re aiming to raise **$500** to complete and enhance MoodTrek BETA with the 
 
 We believe in pushing beyond the basics to make MoodTrek truly exceptional. Should we exceed our initial goal, we’ll use additional funds to bring you even more groundbreaking features and improvements!
 
-#### **Stretch Goal #1 - $750: Mood-Triggered Visualizations**
-Add a stunning **visual experience** with dynamic mood-triggered visualizations that respond to the songs you're listening to. Let your screen mirror your mood with beautiful graphics.
+#### **Stretch Goal #1 - $750: Mood-Triggered Visualizations and Custom Song Adding**
+Add a stunning **visual experience** with dynamic mood-triggered visualizations that respond to the songs you're listening to. Let your screen mirror your mood with beautiful graphics. Also, add your own songs in app by getting acces to premium "admin" interface.
 
-#### **Stretch Goal #2 - $1,500: AI-Generated Emojis**
+#### **Stretch Goal #2 - $1,000: AI-Generated Emojis**
 Unlock **AI-generated custom emojis** that reflect your exact emotional state! These unique emojis will change based on how the app interprets your mood, adding a fun and personal touch to your music experience.
 
-#### **Stretch Goal #3 - $2,000: Full Mood Analytics**
+#### **Stretch Goal #3 - $1,500: Full Mood Analytics**
 Take a deeper dive into your emotions with **comprehensive mood analytics**. Track how your emotional patterns change over time and see personalized insights based on the music you listen to using insightful charts.
 
-#### **Stretch Goal #4 - $3,000: Super Cool Musical Time Machine and Emotion-based "alarm"**
+#### **Stretch Goal #4 - $2,500: Super Cool Musical Time Machine and Emotion-based "alarm"**
 Take a trip down memory lane with our **Musical Time Machine**. This feature will allow users to revisit any of the passed decades and find a playlist with mood of their choice along with scheduled song recommendations with emotion of their choice.
 
 #### **Stretch Goal #5 - $5,000: Collaborative Playlists**
