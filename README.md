@@ -1,6 +1,6 @@
 NAĆ NEKI BOLJI API!!!!!!! JOŠ SAMO TO TRIBA RIJEŠIT!!!
 
-kickstarter link: https://www.kickstarter.com/profile/1706300933/about
+https://www.patreon.com/FeelTuneStudio404
 
 * FeelTrak by FeelTune studio
 * hosted link s sjebanon bazon
